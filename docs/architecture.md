@@ -8,11 +8,11 @@ A POC visa demonstrar a capacidade do LangChain de orquestrar interações entre
 
 ```mermaid
 graph TD
-    User[Usuário] --> Interface[Interface (CLI/Web)]
-    Interface --> App[Aplicação LangChain]
-    App -->|Prompt| LLM[LLM (OpenAI/Outros)]
-    App -->|Consulta| VectorStore[Vector Store (ChromaDB/FAISS)]
-    App -->|Ação| Tools[Ferramentas (Search/Calc)]
+    User["Usuário"] --> Interface["Interface (CLI/Web)"]
+    Interface --> App["Aplicação LangChain"]
+    App -->|Prompt| LLM["LLM (OpenAI/Outros)"]
+    App -->|Consulta| VectorStore["Vector Store (ChromaDB/FAISS)"]
+    App -->|Ação| Tools["Ferramentas (Search/Calc)"]
     LLM -->|Resposta| App
     VectorStore -->|Contexto| App
     Tools -->|Resultado| App

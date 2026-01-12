@@ -1,3 +1,9 @@
-langchain
+langchain==0.1.0
+langchain-openai==0.0.6
 openai
 python-dotenv
+pytest
+black
+flake8
+pre-commit
+detect-secrets
