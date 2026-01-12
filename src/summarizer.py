@@ -12,6 +12,7 @@ from langchain.chains import LLMChain
 from langchain_core.language_models.chat_models import BaseChatModel
 import os
 
+
 class Summarizer:
     """
     A class to summarize text using an LLM.
@@ -21,7 +22,9 @@ class Summarizer:
         chain (LLMChain): The summarization chain.
     """
 
-    def __init__(self, api_key: Optional[str] = None, model_name: str = "gpt-3.5-turbo"):
+    def __init__(
+        self, api_key: Optional[str] = None, model_name: str = "gpt-3.5-turbo"
+    ):
         """
         Initialize the Summarizer.
 
@@ -37,14 +40,12 @@ class Summarizer:
             raise ValueError("OpenAI API Key is required.")
 
         self.llm = ChatOpenAI(
-            openai_api_key=self.api_key,
-            model_name=model_name,
-            temperature=0.5
+            openai_api_key=self.api_key, model_name=model_name, temperature=0.5
         )
 
         self.prompt_template = PromptTemplate(
             input_variables=["text"],
-            template="Please summarize the following text:\n\n{text}\n\nSummary:"
+            template="Please summarize the following text:\n\n{text}\n\nSummary:",
         )
 
         self.chain = LLMChain(llm=self.llm, prompt=self.prompt_template)
