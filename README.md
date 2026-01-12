@@ -41,10 +41,9 @@ Para executar este projeto, você precisará de:
    ```bash
    pip install -r requirements.txt
    ```
-   *(Nota: Se o arquivo `requirements.txt` ainda não existir, instale o básico com `pip install langchain openai python-dotenv`)*
 
 4. Configure as variáveis de ambiente:
-   - Crie um arquivo `.env` na raiz do projeto.
+   - Crie um arquivo `.env` na raiz do projeto (use `.env.example` como base).
    - Adicione sua chave da OpenAI:
      ```
      OPENAI_API_KEY=sk-...
@@ -52,14 +51,40 @@ Para executar este projeto, você precisará de:
 
 ## 🛠 Como Usar
 
-*(Esta seção será atualizada à medida que exemplos específicos forem implementados)*
+### Funcionalidade de Resumo
 
-### Exemplo Básico (Previsto)
+O projeto inclui um módulo `Summarizer` que utiliza LLMs para resumir textos.
 
-Execute o script principal para iniciar uma interação via terminal:
+Exemplo de uso em Python:
+
+```python
+from src.summarizer import Summarizer
+
+# Instancie o sumarizador (certifique-se de ter OPENAI_API_KEY no .env)
+summarizer = Summarizer()
+
+texto = "Seu texto longo aqui..."
+resumo = summarizer.summarize(texto)
+
+print(resumo)
+```
+
+## ✅ Testes e Qualidade
+
+O projeto utiliza `pytest` para testes, `black` para formatação e `pre-commit` para hooks de segurança e qualidade.
+
+### Executar testes
 
 ```bash
-python src/main.py
+pytest
+```
+
+### Configurar Pre-commit (Hooks)
+
+Para instalar os hooks do Git (incluindo verificação de segredos e formatação):
+
+```bash
+pre-commit install
 ```
 
 ## 📂 Estrutura do Projeto
@@ -67,9 +92,12 @@ python src/main.py
 ```
 poc-langchain/
 ├── docs/               # Documentação do projeto
-│   └── architecture.md # Diagrama de arquitetura
-├── src/                # Código fonte (futuro)
-├── tests/              # Testes automatizados (futuro)
+├── src/                # Código fonte
+│   ├── summarizer.py   # Módulo de resumo
+│   └── ...
+├── tests/              # Testes automatizados
+├── .github/            # Workflows de CI/CD
+├── .pre-commit-config.yaml # Configuração de hooks do Git
 ├── .env.example        # Modelo de variáveis de ambiente
 ├── .gitignore          # Arquivos ignorados pelo Git
 ├── README.md           # Este arquivo
