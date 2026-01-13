@@ -10,6 +10,10 @@ O objetivo desta POC é demonstrar como o LangChain pode ser utilizado para cria
 - Utilizar ferramentas externas (Agents).
 - Recuperar informações de bases de dados vetoriais (RAG - Retrieval Augmented Generation).
 
+## ✨ Funcionalidades
+
+- **Resumo de Texto**: Uma ferramenta para resumir textos longos. [Documentação](docs/features/summarization.md)
+
 ## 🏗 Arquitetura
 
 A arquitetura básica do projeto está documentada em [docs/architecture.md](docs/architecture.md).
@@ -18,7 +22,7 @@ A arquitetura básica do projeto está documentada em [docs/architecture.md](doc
 
 Para executar este projeto, você precisará de:
 
-- **Python 3.9+** instalado.
+- **Python 3.10+** instalado.
 - Uma chave de API da **OpenAI** (ou outro provedor de LLM compatível).
 
 ## 🚀 Instalação
@@ -37,29 +41,34 @@ Para executar este projeto, você precisará de:
    .venv\Scripts\activate  # Windows
    ```
 
-3. Instale as dependências:
+3. Instale as dependências (incluindo ferramentas de dev/teste):
    ```bash
    pip install -r requirements.txt
    ```
-   *(Nota: Se o arquivo `requirements.txt` ainda não existir, instale o básico com `pip install langchain openai python-dotenv`)*
 
-4. Configure as variáveis de ambiente:
-   - Crie um arquivo `.env` na raiz do projeto.
+4. Instale os Hooks do Git (Pre-commit):
+   ```bash
+   pre-commit install
+   ```
+   *Isso garante verificações de segurança e formatação antes de cada commit.*
+
+5. Configure as variáveis de ambiente:
+   - Crie um arquivo `.env` na raiz do projeto (use `.env.example` como base).
    - Adicione sua chave da OpenAI:
      ```
      OPENAI_API_KEY=sk-...
      ```
 
-## 🛠 Como Usar
+## 🛠 Desenvolvimento e Testes
 
-*(Esta seção será atualizada à medida que exemplos específicos forem implementados)*
-
-### Exemplo Básico (Previsto)
-
-Execute o script principal para iniciar uma interação via terminal:
-
+### Executar Testes
 ```bash
-python src/main.py
+pytest
+```
+
+### Verificar Estilo e Segurança
+```bash
+pre-commit run --all-files
 ```
 
 ## 📂 Estrutura do Projeto
@@ -67,9 +76,11 @@ python src/main.py
 ```
 poc-langchain/
 ├── docs/               # Documentação do projeto
-│   └── architecture.md # Diagrama de arquitetura
-├── src/                # Código fonte (futuro)
-├── tests/              # Testes automatizados (futuro)
+├── src/                # Código fonte
+│   └── langchain_poc/  # Pacote principal
+├── tests/              # Testes automatizados
+├── .github/            # Workflows de CI/CD
+├── .pre-commit-config.yaml # Configuração dos Hooks do Git
 ├── .env.example        # Modelo de variáveis de ambiente
 ├── .gitignore          # Arquivos ignorados pelo Git
 ├── README.md           # Este arquivo
