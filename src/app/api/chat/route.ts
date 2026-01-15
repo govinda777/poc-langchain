@@ -32,8 +32,8 @@ export async function POST(req: NextRequest) {
         const response = lastMessage.content;
 
         return NextResponse.json({ response });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error in chat API:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: (error as Error).message }, { status: 500 });
     }
 }
