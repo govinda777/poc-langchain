@@ -42,9 +42,9 @@ graph TD
     classDef action fill:#bbf,stroke:#333,stroke-width:2px;
     classDef decision fill:#ff9,stroke:#333,stroke-width:4px;
 
-    Start((Início)) --> Perception[Perception Node]
-    Perception --> Hydration[Hydration Node <br/>(Privy Sync)]:::memory
-    Hydration --> Router{Router / Classifier}:::decision
+    Start((Início)) --> Hydration[Hydration Node <br/>(Privy Sync)]:::memory
+    Hydration --> Perception[Perception Node]
+    Perception --> Router{Router / Classifier}:::decision
 
     Router -- "Info / Dúvida" --> RAG[RAG Node <br/>(Vector Search)]:::memory
     Router -- "Conversa Geral" --> Chat[General Chat Node]

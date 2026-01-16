@@ -37,11 +37,11 @@
     - [ ] Implement Weather Tool
     - [ ] Implement Calculator Tool
 - [ ] Core Engine Testing (Unit & BDD)
-    - [ ] Setup Test Environment (Vitest/Jest)
+    - [x] Setup Test Environment (Vitest/Jest)
     - [ ] Create Feature Files (Gherkin/BDD Scenarios)
     - [ ] Unit Test: Perception Node (Input normalization)
     - [ ] Unit Test: Router Node (Intent routing)
-    - [ ] Integration Test: Full Graph Execution Flow
+    - [x] Integration Test: Full Graph Execution Flow (Identity Scenarios)
 - [ ] Core Engine Documentation
     - [ ] Document Agent State Schema
     - [ ] Document Graph Topology (Mermaid Diagram)
@@ -60,7 +60,7 @@
 
 ## Phase 3: Identity & Episodic Memory
 - [ ] Context Integration
-    - [ ] Implement `HydrationNode` (User lookup)
+    - [x] Implement `HydrationNode` (User lookup)
     - [ ] Implement Auth Guard for sensitive actions
     - [ ] Implement Metadata Sync with Privy
 
