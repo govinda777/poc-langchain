@@ -34,3 +34,25 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Development Workflow
+
+### Scripts
+
+- `npm run dev`: Start development server.
+- `npm run build`: Build the application.
+- `npm start`: Start production server.
+- `npm run lint`: Run ESLint.
+- `npm test`: Run Jest tests.
+
+### Quality & Security
+
+This project uses Husky, Commitlint, and Secretlint to ensure code quality and security.
+
+- **Pre-commit**: Runs `eslint`, `prettier`, and `secretlint` on staged files.
+- **Commit Message**: Must follow [Conventional Commits](https://www.conventionalcommits.org/).
+- **Secret Scanning**: `secretlint` prevents committing sensitive credentials.
+
+### API Health Check
+
+An API endpoint is available at `/api/health` to verify system status.
