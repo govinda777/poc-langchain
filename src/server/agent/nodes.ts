@@ -63,8 +63,20 @@ export async function agentNode(state: AgentState): Promise<Partial<AgentState>>
     console.log('Agent Node: Generating response...');
     const lastUserMsg = state.messages[state.messages.length - 1].content;
     const name = state.userProfile?.name || "User";
+    const context = state.userProfile?.lastConversationContext;
+
+    console.log(`Agent Logic: Generating response for ${name}. Context available: ${context || 'None'}`);
+
+    let responseText = `Hello ${name}.`;
+    if (context) {
+        console.log(`Audit: Using prior context "${context}" to personalize greeting.`);
+        responseText += ` Continuing our discussion about ${context}?`;
+    } else {
+        responseText += ` I am the Cognitive Agent.`;
+    }
+    responseText += ` I received your message: "${lastUserMsg}".`;
 
     return {
-        messages: [new AIMessage(`Hello ${name}. I am the Cognitive Agent. I received your message: "${lastUserMsg}".`)]
+        messages: [new AIMessage(responseText)]
     };
 }
