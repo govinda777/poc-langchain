@@ -40,12 +40,30 @@ export async function routerNode(state: AgentState) {
 
     console.log('Router Node: Deciding next step for:', content);
 
+    if (content.includes('transfer') || content.includes('transferir')) {
+        return 'sensitive';
+    }
+
     if (content.includes('clima') || content.includes('weather')) {
         return 'action';
     }
 
     // Default to responding directly (or handoff to LLM generation node)
     return 'response';
+}
+
+// Node: Security (Gate for Sensitive Actions)
+export async function securityNode(state: AgentState): Promise<Partial<AgentState>> {
+    console.log('Security Node: Checking verification status...');
+    const isVerified = state.isVerified || false;
+
+    if (isVerified) {
+         console.log('Audit: Allowed sensitive action for verified user.');
+         return { securityOutcome: 'approved' };
+    } else {
+         console.log('Audit: Blocked sensitive action for unverified user.');
+         return { securityOutcome: 'denied' };
+    }
 }
 
 // Node: Action (Tools)
@@ -61,6 +79,13 @@ export async function actionNode(_state: AgentState): Promise<Partial<AgentState
 // Node: Agent (Response Generation)
 export async function agentNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Agent Node: Generating response...');
+
+    if (state.securityOutcome === 'denied') {
+        return {
+            messages: [new AIMessage("Para realizar essa transação, preciso que você confirme sua identidade. Por favor, autentique-se.")]
+        };
+    }
+
     const lastUserMsg = state.messages[state.messages.length - 1].content;
     const name = state.userProfile?.name || "User";
 
