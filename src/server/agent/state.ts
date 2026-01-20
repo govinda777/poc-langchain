@@ -5,7 +5,7 @@ export interface UserProfile {
     id: string;
     name: string;
     preferences: Record<string, any>;
-    // Future: long term memory summaries, etc.
+    lastConversationContext?: string; // Long-term memory of the last interaction
 }
 
 export interface AgentState {

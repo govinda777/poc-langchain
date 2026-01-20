@@ -12,6 +12,12 @@ const MOCK_DB: Record<string, UserProfile> = {
         id: 'user-456',
         name: 'Bob',
         preferences: { language: 'pt-BR' }
+    },
+    'joao-123': {
+        id: 'joao-123',
+        name: 'João',
+        preferences: {},
+        lastConversationContext: "discussed insurance proposal"
     }
 };
 

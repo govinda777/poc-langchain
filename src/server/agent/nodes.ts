@@ -18,6 +18,9 @@ export async function hydrationNode(state: AgentState): Promise<Partial<AgentSta
         };
     } else {
          console.log(`User ${userId} recognized as ${profile.name}.`);
+         if (profile.lastConversationContext) {
+             console.log(`Audit: Loaded long-term memory context for user ${userId}: "${profile.lastConversationContext}"`);
+         }
     }
 
     return {
