@@ -35,7 +35,7 @@
     - [x] Implement Action Node (Basic tools execution)
 - [ ] Tools Integration
     - [ ] Implement Weather Tool
-    - [ ] Implement Calculator Tool
+    - [x] Implement Calculator Tool
 - [ ] Core Engine Testing (Unit & BDD)
     - [ ] Setup Test Environment (Vitest/Jest)
     - [ ] Create Feature Files (Gherkin/BDD Scenarios)
