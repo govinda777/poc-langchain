@@ -22,20 +22,25 @@ graph TD
 ## Componentes
 
 ### 1. Interface do Usuário
+
 - Ponto de entrada para interação (pode ser linha de comando ou interface web simples como Streamlit).
 - Captura a intenção do usuário.
 
 ### 2. Aplicação LangChain (Orquestrador)
+
 - **Chains**: Sequências de chamadas para LLMs ou outras utilidades.
 - **Agents**: Entidades que decidem quais ferramentas usar com base na entrada do usuário.
 - **Memory**: Mantém o contexto da conversa.
 
 ### 3. LLM (Large Language Model)
+
 - Motor de raciocínio e geração de texto (ex: GPT-3.5, GPT-4, Llama 2).
 
 ### 4. Vector Store (Opcional - RAG)
+
 - Armazena embeddings de documentos para recuperação semântica.
 - Permite que o LLM responda perguntas sobre dados específicos da empresa.
 
 ### 5. Ferramentas (Tools)
+
 - Conectores externos que permitem ao modelo realizar ações (pesquisar na web, calcular, acessar API).

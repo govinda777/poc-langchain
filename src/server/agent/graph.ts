@@ -1,37 +1,50 @@
 import { StateGraph, END } from '@langchain/langgraph';
 import { AgentState } from './state';
-import { hydrationNode, perceptionNode, routerNode, actionNode, agentNode } from './nodes';
+import {
+  hydrationNode,
+  perceptionNode,
+  routerNode,
+  actionNode,
+  agentNode,
+  securityNode,
+} from './nodes';
 
 // Define the graph
 const workflow = new StateGraph<AgentState>({
-    channels: {
-        messages: {
-            reducer: (a, b) => a.concat(b),
-            default: () => [],
-        },
-        userId: {
-            reducer: (a, b) => b ?? a,
-            default: () => undefined,
-        },
-        userProfile: {
-             reducer: (a, b) => b ?? a,
-             default: () => undefined,
-        },
-        user: {
-            reducer: (a, b) => b ?? a,
-            default: () => undefined,
-        },
-        sessionId: {
-            reducer: (a, b) => b ?? a,
-            default: () => "default",
-        },
-        intent: {
-            reducer: (a, b) => b ?? a,
-        },
-        lastActive: {
-            reducer: (a, b) => b ?? a,
-        },
+  channels: {
+    messages: {
+      reducer: (a, b) => a.concat(b),
+      default: () => [],
     },
+    userId: {
+      reducer: (a, b) => b ?? a,
+      default: () => undefined,
+    },
+    userProfile: {
+      reducer: (a, b) => b ?? a,
+      default: () => undefined,
+    },
+    user: {
+      reducer: (a, b) => b ?? a,
+      default: () => undefined,
+    },
+    sessionId: {
+      reducer: (a, b) => b ?? a,
+      default: () => 'default',
+    },
+    intent: {
+      reducer: (a, b) => b ?? a,
+    },
+    lastActive: {
+      reducer: (a, b) => b ?? a,
+    },
+    isVerified: {
+      reducer: (a, b) => b ?? a,
+    },
+    securityOutcome: {
+      reducer: (a, b) => b ?? a,
+    },
+  },
 });
 
 // Add nodes
@@ -39,6 +52,7 @@ workflow.addNode('hydration', hydrationNode);
 workflow.addNode('perception', perceptionNode);
 workflow.addNode('action', actionNode);
 workflow.addNode('agent', agentNode);
+workflow.addNode('security', securityNode);
 
 // Add edges
 // Step 1: Hydrate Identity
@@ -48,13 +62,20 @@ workflow.setEntryPoint('hydration');
 workflow.addEdge('hydration', 'perception');
 
 // Step 3: Route
+workflow.addConditionalEdges('perception', routerNode, {
+  action: 'action',
+  response: 'agent',
+  security: 'security',
+});
+
+// Step 4: Security Gate
 workflow.addConditionalEdges(
-    'perception',
-    routerNode,
-    {
-        action: 'action',
-        response: 'agent',
-    }
+  'security',
+  (state) => (state.securityOutcome === 'approved' ? 'proceed' : 'block'),
+  {
+    proceed: 'action',
+    block: 'agent',
+  }
 );
 
 workflow.addEdge('action', 'agent'); // After action, go back to agent to generate response

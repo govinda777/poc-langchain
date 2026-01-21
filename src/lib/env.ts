@@ -8,7 +8,9 @@ const envSchema = z.object({
   PINECONE_API_KEY: z.string().min(1).optional(),
   PINECONE_INDEX: z.string().min(1).optional(),
   PINECONE_ENV: z.string().min(1).optional(),
-  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  NODE_ENV: z
+    .enum(['development', 'test', 'production'])
+    .default('development'),
 });
 
 export const env = envSchema.parse(process.env);

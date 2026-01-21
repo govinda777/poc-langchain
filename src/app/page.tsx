@@ -3,7 +3,9 @@
 import { useState } from 'react';
 
 export default function Home() {
-  const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
+  const [messages, setMessages] = useState<{ role: string; content: string }[]>(
+    []
+  );
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -28,11 +30,17 @@ export default function Home() {
         throw new Error(data.error);
       }
 
-      const agentMessage = { role: 'assistant', content: data.response || 'No response' };
+      const agentMessage = {
+        role: 'assistant',
+        content: data.response || 'No response',
+      };
       setMessages((prev) => [...prev, agentMessage]);
     } catch (error) {
       console.error(error);
-      setMessages((prev) => [...prev, { role: 'system', content: '⚠ Error communicating with agent.' }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'system', content: '⚠ Error communicating with agent.' },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -64,12 +72,13 @@ export default function Home() {
               className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl px-5 py-3 text-sm leading-relaxed shadow-sm transition-all duration-200 ${msg.role === 'user'
+                className={`max-w-[80%] rounded-2xl px-5 py-3 text-sm leading-relaxed shadow-sm transition-all duration-200 ${
+                  msg.role === 'user'
                     ? 'bg-zinc-800 text-zinc-50 rounded-br-none hover:bg-zinc-700'
                     : msg.role === 'system'
                       ? 'bg-red-900/20 text-red-400 border border-red-900/50'
                       : 'bg-zinc-900 border border-zinc-800 text-zinc-300 rounded-bl-none hover:border-zinc-700'
-                  }`}
+                }`}
               >
                 {msg.content}
               </div>
@@ -97,7 +106,9 @@ export default function Home() {
               placeholder="Ask me anything..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+              onKeyDown={(e) =>
+                e.key === 'Enter' && !e.shiftKey && sendMessage()
+              }
               disabled={loading}
             />
             <button
@@ -110,7 +121,9 @@ export default function Home() {
           </div>
         </div>
         <div className="text-center mt-3">
-          <p className="text-[10px] text-zinc-600">Cognitive Agent v2.0 • Powered by LangChain</p>
+          <p className="text-[10px] text-zinc-600">
+            Cognitive Agent v2.0 • Powered by LangChain
+          </p>
         </div>
       </footer>
     </div>
