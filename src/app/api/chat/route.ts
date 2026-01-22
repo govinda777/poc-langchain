@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
         // Run the graph
         // The outputs type depends on your graph state
         // Cast to AgentState to fix TypeScript error
-        const result = await graph.invoke(inputs, config) as AgentState;
+        const result = await graph.invoke(inputs, config) as unknown as AgentState;
 
         if (!result.messages || result.messages.length === 0) {
             return NextResponse.json({ response: 'No response generated.' });
@@ -32,8 +32,12 @@ export async function POST(req: NextRequest) {
         const response = lastMessage.content;
 
         return NextResponse.json({ response });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error in chat API:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        let errorMessage = 'An unexpected error occurred';
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }

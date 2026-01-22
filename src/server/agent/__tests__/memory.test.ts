@@ -1,6 +1,7 @@
 import { StateGraph, END } from '@langchain/langgraph';
 import { AgentState } from '../state';
 import { hydrationNode } from '../nodes';
+import { Runnable } from "@langchain/core/runnables";
 
 // Mock implementation of a simple graph just for testing the node
 async function createTestGraph() {
@@ -43,7 +44,7 @@ async function createTestGraph() {
 }
 
 describe('Feature: Long-Term Memory (Context Persistence)', () => {
-    let app: any;
+    let app: Runnable;
 
     beforeAll(async () => {
         app = await createTestGraph();
