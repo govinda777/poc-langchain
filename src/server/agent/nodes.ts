@@ -23,9 +23,14 @@ export async function hydrationNode(state: AgentState): Promise<Partial<AgentSta
          }
     }
 
+    // Mock Verification Logic
+    // In a real system, this would come from the auth provider or session
+    const isVerified = userId === 'user-123';
+
     return {
         userProfile: profile,
-        lastActive: Date.now()
+        lastActive: Date.now(),
+        isVerified
     };
 }
 
@@ -47,8 +52,25 @@ export async function routerNode(state: AgentState) {
         return 'action';
     }
 
+    if (content.includes('transfer')) {
+        return 'security';
+    }
+
     // Default to responding directly (or handoff to LLM generation node)
     return 'response';
+}
+
+// Node: Security (Gatekeeper)
+export async function securityNode(state: AgentState): Promise<Partial<AgentState>> {
+    console.log(`Security Node: Checking verification for ${state.userProfile?.name}...`);
+
+    if (state.isVerified) {
+         console.log('Audit: User verified. Access granted.');
+         return { securityOutcome: 'approved' };
+    } else {
+         console.log('Audit: User NOT verified. Access denied.');
+         return { securityOutcome: 'denied' };
+    }
 }
 
 // Node: Action (Tools)
@@ -66,6 +88,12 @@ export async function agentNode(state: AgentState): Promise<Partial<AgentState>>
     console.log('Agent Node: Generating response...');
     const lastUserMsg = state.messages[state.messages.length - 1].content;
     const name = state.userProfile?.name || "User";
+
+    if (state.securityOutcome === 'denied') {
+        return {
+            messages: [new AIMessage(`Access Denied. For your security, please authenticate before proceeding with this action.`)]
+        };
+    }
 
     return {
         messages: [new AIMessage(`Hello ${name}. I am the Cognitive Agent. I received your message: "${lastUserMsg}".`)]
