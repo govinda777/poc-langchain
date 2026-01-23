@@ -2,6 +2,7 @@ import { AgentState } from './state';
 import { END } from '@langchain/langgraph';
 import { AIMessage } from '@langchain/core/messages';
 import { getUserProfile } from './services/userStore';
+import { getExchangeRate } from './tools/currency';
 
 // Node: Hydration (Identity First)
 export async function hydrationNode(state: AgentState): Promise<Partial<AgentState>> {
@@ -47,13 +48,27 @@ export async function routerNode(state: AgentState) {
         return 'action';
     }
 
+    if (content.includes('dolar') || content.includes('euro') || content.includes('cambio')) {
+        return 'action';
+    }
+
     // Default to responding directly (or handoff to LLM generation node)
     return 'response';
 }
 
 // Node: Action (Tools)
-export async function actionNode(_state: AgentState): Promise<Partial<AgentState>> {
+export async function actionNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Action Node: Executing tool...');
+    const lastMessage = state.messages[state.messages.length - 1];
+    const content = lastMessage.content.toString().toLowerCase();
+
+    if (content.includes('dolar') || content.includes('euro') || content.includes('cambio')) {
+        const result = await getExchangeRate(content);
+        return {
+            messages: [new AIMessage(result)]
+        };
+    }
+
     // Simulation of a tool execution
     return {
         // We would append a ToolMessage here
