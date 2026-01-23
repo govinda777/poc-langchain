@@ -47,8 +47,33 @@ export async function routerNode(state: AgentState) {
         return 'action';
     }
 
+    // Security Gate for sensitive actions (US02)
+    if (content.includes('transfer') || content.includes('pix') || content.includes('saldo')) {
+        return 'security';
+    }
+
     // Default to responding directly (or handoff to LLM generation node)
     return 'response';
+}
+
+// Node: Security (Gatekeeper)
+export async function securityNode(state: AgentState): Promise<Partial<AgentState>> {
+    console.log('Security Node: Checking verification...');
+    const isVerified = state.isVerified || false;
+
+    if (!isVerified) {
+        console.log(`Security: Access DENIED for ${state.userId}.`);
+        return {
+            securityOutcome: 'denied',
+            // We can optionally add a message here, or let the Agent Node handle the response based on outcome
+            messages: [new AIMessage("Acesso Negado: Para sua segurança, é necessária autenticação forte para esta ação.")]
+        };
+    }
+
+    console.log(`Security: Access APPROVED for ${state.userId}.`);
+    return {
+        securityOutcome: 'approved'
+    };
 }
 
 // Node: Action (Tools)
@@ -64,6 +89,12 @@ export async function actionNode(_state: AgentState): Promise<Partial<AgentState
 // Node: Agent (Response Generation)
 export async function agentNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Agent Node: Generating response...');
+
+    // If access was denied, we stop generation (or handled by securityNode)
+    if (state.securityOutcome === 'denied') {
+        return {};
+    }
+
     const lastUserMsg = state.messages[state.messages.length - 1].content;
     const name = state.userProfile?.name || "User";
 
