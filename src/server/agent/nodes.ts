@@ -2,6 +2,7 @@ import { AgentState } from './state';
 import { END } from '@langchain/langgraph';
 import { AIMessage } from '@langchain/core/messages';
 import { getUserProfile } from './services/userStore';
+import { getWeather } from './tools/weather';
 
 // Node: Hydration (Identity First)
 export async function hydrationNode(state: AgentState): Promise<Partial<AgentState>> {
@@ -52,12 +53,22 @@ export async function routerNode(state: AgentState) {
 }
 
 // Node: Action (Tools)
-export async function actionNode(_state: AgentState): Promise<Partial<AgentState>> {
+export async function actionNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Action Node: Executing tool...');
-    // Simulation of a tool execution
+    const lastMessage = state.messages[state.messages.length - 1];
+    const content = lastMessage.content.toString().toLowerCase();
+
+    if (content.includes('clima') || content.includes('weather')) {
+        // Naive extraction or default
+        const result = await getWeather('São Paulo');
+        return {
+            messages: [new AIMessage(result)]
+        };
+    }
+
+    // Default fallback
     return {
-        // We would append a ToolMessage here
-        messages: [new AIMessage("Tool execution simulated.")]
+        messages: [new AIMessage("Action executed but no specific tool matched.")]
     };
 }
 
