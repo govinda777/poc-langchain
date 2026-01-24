@@ -47,8 +47,27 @@ export async function routerNode(state: AgentState) {
         return 'action';
     }
 
+    if (content.includes('transfer') || content.includes('pix') || content.includes('saldo')) {
+        return 'security';
+    }
+
     // Default to responding directly (or handoff to LLM generation node)
     return 'response';
+}
+
+// Node: Security Gate
+export async function securityNode(state: AgentState): Promise<Partial<AgentState>> {
+    console.log('Security Node: Checking verification status...');
+    if (state.isVerified) {
+        console.log('Audit: User verified. Access granted.');
+        return { securityOutcome: 'approved' };
+    } else {
+        console.log('Audit: User NOT verified. Access denied.');
+        return {
+            securityOutcome: 'denied',
+            messages: [new AIMessage("Security Alert: Authentication required for this action.")]
+        };
+    }
 }
 
 // Node: Action (Tools)
