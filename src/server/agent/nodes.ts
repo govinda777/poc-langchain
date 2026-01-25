@@ -43,12 +43,35 @@ export async function routerNode(state: AgentState) {
 
     console.log('Router Node: Deciding next step for:', content);
 
+    const sensitiveKeywords = ['transfer', 'buy', 'pay', 'pagar', 'transferir', 'comprar'];
+    if (sensitiveKeywords.some(keyword => content.includes(keyword))) {
+        return 'security';
+    }
+
     if (content.includes('clima') || content.includes('weather')) {
         return 'action';
     }
 
     // Default to responding directly (or handoff to LLM generation node)
     return 'response';
+}
+
+// Node: Security Gate
+export async function securityNode(state: AgentState): Promise<Partial<AgentState>> {
+    console.log('Security Node: Checking verification status...');
+    const isVerified = state.isVerified || false;
+    const userId = state.userId || 'unknown';
+
+    if (isVerified) {
+        console.log(`Audit: Security Gate checked verification. User: ${userId}, Verified: true, Outcome: approved`);
+        return { securityOutcome: 'approved' };
+    } else {
+        console.log(`Audit: Security Gate checked verification. User: ${userId}, Verified: false, Outcome: denied`);
+        return {
+            securityOutcome: 'denied',
+            messages: [new AIMessage("Action denied. Please authenticate to proceed.")]
+        };
+    }
 }
 
 // Node: Action (Tools)
