@@ -2,6 +2,7 @@ import { AgentState } from './state';
 import { END } from '@langchain/langgraph';
 import { AIMessage } from '@langchain/core/messages';
 import { getUserProfile } from './services/userStore';
+import { calculatorTool } from './tools/calculator';
 
 // Node: Hydration (Identity First)
 export async function hydrationNode(state: AgentState): Promise<Partial<AgentState>> {
@@ -47,14 +48,32 @@ export async function routerNode(state: AgentState) {
         return 'action';
     }
 
+    if (content.includes('calc') || content.includes('conta') || /[\d]+\s*[\+\-\*\/]/.test(content)) {
+        return 'action';
+    }
+
     // Default to responding directly (or handoff to LLM generation node)
     return 'response';
 }
 
 // Node: Action (Tools)
-export async function actionNode(_state: AgentState): Promise<Partial<AgentState>> {
+export async function actionNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Action Node: Executing tool...');
-    // Simulation of a tool execution
+    const lastMessage = state.messages[state.messages.length - 1];
+    const content = lastMessage.content.toString().toLowerCase();
+
+    if (content.includes('calc') || content.includes('conta') || /[\d]+\s*[\+\-\*\/]/.test(content)) {
+        // Extract expression by removing non-math characters (keeping digits, operators, parens, dots, spaces)
+        // We also want to keep the structure valid.
+        // Simple heuristic: Remove text words.
+        const expression = content.replace(/[a-z!@#$%^&_=\[\]{};':"\\|,<>?]/g, '');
+        const result = calculatorTool(expression);
+        return {
+            messages: [new AIMessage(`Calculator Result: ${result}`)]
+        };
+    }
+
+    // Simulation of other tool execution (e.g. Weather)
     return {
         // We would append a ToolMessage here
         messages: [new AIMessage("Tool execution simulated.")]
