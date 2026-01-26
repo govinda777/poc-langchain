@@ -34,10 +34,10 @@
     - [x] Implement Router Node (Intent classification)
     - [x] Implement Action Node (Basic tools execution)
 - [ ] Tools Integration
-    - [ ] Implement Weather Tool
+    - [x] Implement Weather Tool
     - [ ] Implement Calculator Tool
 - [ ] Core Engine Testing (Unit & BDD)
-    - [ ] Setup Test Environment (Vitest/Jest)
+    - [x] Setup Test Environment (Vitest/Jest)
     - [ ] Create Feature Files (Gherkin/BDD Scenarios)
     - [ ] Unit Test: Perception Node (Input normalization)
     - [ ] Unit Test: Router Node (Intent routing)
