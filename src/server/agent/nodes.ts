@@ -67,7 +67,14 @@ export async function agentNode(state: AgentState): Promise<Partial<AgentState>>
     const lastUserMsg = state.messages[state.messages.length - 1].content;
     const name = state.userProfile?.name || "User";
 
+    let response = `Hello ${name}. I am the Cognitive Agent. I received your message: "${lastUserMsg}".`;
+
+    if (state.userProfile?.lastConversationContext) {
+        console.log(`Audit: Integrating long-term memory into response: "${state.userProfile.lastConversationContext}"`);
+        response += `\n\nContinuing our discussion about: ${state.userProfile.lastConversationContext}.`;
+    }
+
     return {
-        messages: [new AIMessage(`Hello ${name}. I am the Cognitive Agent. I received your message: "${lastUserMsg}".`)]
+        messages: [new AIMessage(response)]
     };
 }
