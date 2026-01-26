@@ -17,4 +17,7 @@ export interface AgentState {
     // Contextual data
     intent?: string;
     lastActive?: number;
+    // Security Gate
+    isVerified?: boolean;
+    securityOutcome?: 'approved' | 'denied' | 'pending';
 }

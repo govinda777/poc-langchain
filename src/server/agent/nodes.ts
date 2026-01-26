@@ -36,12 +36,32 @@ export async function perceptionNode(state: AgentState): Promise<Partial<AgentSt
     return { lastActive: Date.now() };
 }
 
+// Node: Security Gate (US02)
+export async function securityNode(state: AgentState): Promise<Partial<AgentState>> {
+    console.log('Security Node: Checking verification status...');
+    if (state.isVerified) {
+        console.log('Audit: Sensitive action approved. User is verified.');
+        return { securityOutcome: 'approved' };
+    } else {
+        console.log('Audit: Sensitive action denied. User NOT verified.');
+        return {
+            securityOutcome: 'denied',
+            messages: [new AIMessage("Security Alert: Sensitive action detected. Please verify your identity to proceed.")]
+        };
+    }
+}
+
 // Node: Router (Intent Classification)
 export async function routerNode(state: AgentState) {
     const lastMessage = state.messages[state.messages.length - 1];
     const content = lastMessage.content.toString().toLowerCase();
 
     console.log('Router Node: Deciding next step for:', content);
+
+    const sensitiveKeywords = ['transfer', 'buy', 'pay', 'pagar', 'transferir', 'comprar'];
+    if (sensitiveKeywords.some(keyword => content.includes(keyword))) {
+        return 'security';
+    }
 
     if (content.includes('clima') || content.includes('weather')) {
         return 'action';
