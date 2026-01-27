@@ -32,38 +32,83 @@ export async function hydrationNode(state: AgentState): Promise<Partial<AgentSta
 // Node: Perception
 export async function perceptionNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log(`Perception Node: Processing input for ${state.userProfile?.name}...`);
-    // Here we could normalize input, check safety, etc.
-    return { lastActive: Date.now() };
+    const lastMessage = state.messages[state.messages.length - 1];
+    const content = lastMessage.content.toString().toLowerCase();
+
+    let intent = 'conversation';
+    if (content.includes('clima') || content.includes('weather')) {
+        intent = 'weather';
+    } else if (content.includes('transfer') || content.includes('pagar') || content.includes('pay')) {
+        intent = 'transfer';
+    }
+
+    return {
+        lastActive: Date.now(),
+        intent
+    };
+}
+
+// Node: Security (Gatekeeper)
+export async function securityNode(state: AgentState): Promise<Partial<AgentState>> {
+    const isVerified = state.isVerified || false;
+    const userId = state.userId || 'unknown';
+    console.log(`Security Node: Checking verification for ${userId}...`);
+
+    let securityOutcome: 'approved' | 'denied' = 'denied';
+
+    if (isVerified) {
+        securityOutcome = 'approved';
+    }
+
+    console.log(`Audit: Security Check - User ${userId}, Verified: ${isVerified}, Outcome: ${securityOutcome}`);
+
+    return {
+        securityOutcome
+    };
 }
 
 // Node: Router (Intent Classification)
 export async function routerNode(state: AgentState) {
-    const lastMessage = state.messages[state.messages.length - 1];
-    const content = lastMessage.content.toString().toLowerCase();
+    const intent = state.intent || 'conversation';
+    console.log('Router Node: Deciding next step for intent:', intent);
 
-    console.log('Router Node: Deciding next step for:', content);
-
-    if (content.includes('clima') || content.includes('weather')) {
+    if (intent === 'weather') {
         return 'action';
     }
+    if (intent === 'transfer') {
+        return 'security';
+    }
 
-    // Default to responding directly (or handoff to LLM generation node)
+    // Default to responding directly
     return 'response';
 }
 
 // Node: Action (Tools)
-export async function actionNode(_state: AgentState): Promise<Partial<AgentState>> {
+export async function actionNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Action Node: Executing tool...');
-    // Simulation of a tool execution
+    const intent = state.intent;
+    let result = "Tool execution simulated.";
+
+    if (intent === 'transfer') {
+        result = "Audit: Transfer executed successfully.";
+    }
+
     return {
-        // We would append a ToolMessage here
-        messages: [new AIMessage("Tool execution simulated.")]
+        messages: [new AIMessage(result)]
     };
 }
 
 // Node: Agent (Response Generation)
 export async function agentNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Agent Node: Generating response...');
+
+    // Check security outcome first
+    if (state.securityOutcome === 'denied') {
+        return {
+             messages: [new AIMessage("Access Denied. Please authenticate to perform this action.")]
+        };
+    }
+
     const lastUserMsg = state.messages[state.messages.length - 1].content;
     const name = state.userProfile?.name || "User";
 
