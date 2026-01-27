@@ -32,8 +32,9 @@ export async function POST(req: NextRequest) {
         const response = lastMessage.content;
 
         return NextResponse.json({ response });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error in chat API:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }

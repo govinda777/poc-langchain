@@ -1,0 +1,4 @@
+{
+  "**/*": "secretlint",
+  "*.{js,jsx,ts,tsx}": "eslint"
+}
