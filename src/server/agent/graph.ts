@@ -1,6 +1,6 @@
 import { StateGraph, END } from '@langchain/langgraph';
 import { AgentState } from './state';
-import { hydrationNode, perceptionNode, routerNode, actionNode, agentNode } from './nodes';
+import { hydrationNode, perceptionNode, routerNode, actionNode, agentNode, securityNode } from './nodes';
 
 // Define the graph
 const workflow = new StateGraph<AgentState>({
@@ -31,6 +31,13 @@ const workflow = new StateGraph<AgentState>({
         lastActive: {
             reducer: (a, b) => b ?? a,
         },
+        isVerified: {
+            reducer: (a, b) => b ?? a,
+            default: () => false,
+        },
+        securityOutcome: {
+            reducer: (a, b) => b ?? a,
+        }
     },
 });
 
@@ -39,6 +46,7 @@ workflow.addNode('hydration', hydrationNode);
 workflow.addNode('perception', perceptionNode);
 workflow.addNode('action', actionNode);
 workflow.addNode('agent', agentNode);
+workflow.addNode('security', securityNode);
 
 // Add edges
 // Step 1: Hydrate Identity
@@ -53,11 +61,13 @@ workflow.addConditionalEdges(
     routerNode,
     {
         action: 'action',
+        security: 'security',
         response: 'agent',
     }
 );
 
 workflow.addEdge('action', 'agent'); // After action, go back to agent to generate response
+workflow.addEdge('security', 'agent'); // After security check, go to agent to explain outcome
 workflow.addEdge('agent', END);
 
 // Compile

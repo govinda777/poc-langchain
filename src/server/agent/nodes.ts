@@ -43,12 +43,31 @@ export async function routerNode(state: AgentState) {
 
     console.log('Router Node: Deciding next step for:', content);
 
+    // US02: Transfer intent -> Security
+    if (content.includes('transfer') || content.includes('transferência')) {
+        return 'security';
+    }
+
     if (content.includes('clima') || content.includes('weather')) {
         return 'action';
     }
 
     // Default to responding directly (or handoff to LLM generation node)
     return 'response';
+}
+
+// Node: Security (US02)
+export async function securityNode(state: AgentState): Promise<Partial<AgentState>> {
+    console.log('Security Node: Checking verification status...');
+    const isVerified = state.isVerified ?? false;
+
+    const outcome = isVerified ? 'approved' : 'denied';
+
+    console.log(`Audit: Security Gate - User ${state.userId} action ${outcome}. Verified: ${isVerified}`);
+
+    return {
+        securityOutcome: outcome
+    };
 }
 
 // Node: Action (Tools)
@@ -64,6 +83,15 @@ export async function actionNode(_state: AgentState): Promise<Partial<AgentState
 // Node: Agent (Response Generation)
 export async function agentNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Agent Node: Generating response...');
+
+    // US02: Handle Security Denial
+    if (state.securityOutcome === 'denied') {
+        console.log('Audit: Refusing action due to security policy.');
+        return {
+            messages: [new AIMessage("Access Denied. For your security, please authenticate to proceed with this sensitive action.")]
+        };
+    }
+
     const lastUserMsg = state.messages[state.messages.length - 1].content;
     const name = state.userProfile?.name || "User";
 
@@ -72,6 +100,11 @@ export async function agentNode(state: AgentState): Promise<Partial<AgentState>>
     if (state.userProfile?.lastConversationContext) {
         console.log(`Audit: Integrating long-term memory into response: "${state.userProfile.lastConversationContext}"`);
         response += `\n\nContinuing our discussion about: ${state.userProfile.lastConversationContext}.`;
+    }
+
+    // If security was approved, maybe acknowledge it?
+    if (state.securityOutcome === 'approved') {
+         response += "\n(Security verification passed)";
     }
 
     return {
