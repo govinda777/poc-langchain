@@ -2,6 +2,7 @@ import { AgentState } from './state';
 import { END } from '@langchain/langgraph';
 import { AIMessage } from '@langchain/core/messages';
 import { getUserProfile } from './services/userStore';
+import { calculate } from './tools/calculator';
 
 // Node: Hydration (Identity First)
 export async function hydrationNode(state: AgentState): Promise<Partial<AgentState>> {
@@ -47,14 +48,38 @@ export async function routerNode(state: AgentState) {
         return 'action';
     }
 
+    if (content.includes('calc') || content.match(/[\d]+[\s]*[\+\-\*\/][\s]*[\d]+/)) {
+        return 'action';
+    }
+
     // Default to responding directly (or handoff to LLM generation node)
     return 'response';
 }
 
 // Node: Action (Tools)
-export async function actionNode(_state: AgentState): Promise<Partial<AgentState>> {
+export async function actionNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Action Node: Executing tool...');
-    // Simulation of a tool execution
+    const lastMessage = state.messages[state.messages.length - 1];
+    const content = lastMessage.content.toString();
+
+    // Calculator Tool Dispatch
+    if (content.toLowerCase().includes('calc') || content.match(/[\d]+[\s]*[\+\-\*\/][\s]*[\d]+/)) {
+        console.log('Action Node: Dispatching to Calculator...');
+        let expr = content;
+        // Basic cleanup if user typed "calculate 2+2"
+        if (content.toLowerCase().includes('calculate')) {
+            expr = content.toLowerCase().replace('calculate', '');
+        } else if (content.toLowerCase().includes('calc')) {
+            expr = content.toLowerCase().replace('calc', '');
+        }
+
+        const result = calculate(expr);
+        return {
+            messages: [new AIMessage(`Calculation Result: ${result}`)]
+        };
+    }
+
+    // Simulation of a tool execution (fallback)
     return {
         // We would append a ToolMessage here
         messages: [new AIMessage("Tool execution simulated.")]
