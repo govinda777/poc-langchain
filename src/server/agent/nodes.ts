@@ -36,12 +36,28 @@ export async function perceptionNode(state: AgentState): Promise<Partial<AgentSt
     return { lastActive: Date.now() };
 }
 
+// Node: Security (Gatekeeper)
+export async function securityNode(state: AgentState): Promise<Partial<AgentState>> {
+    console.log('Security Node: Checking verification status...');
+    if (state.isVerified) {
+        console.log(`Audit: Security Check - User ${state.userId} verified. Access GRANTED.`);
+        return { securityOutcome: 'approved' };
+    } else {
+        console.log(`Audit: Security Check - User ${state.userId} NOT verified. Access DENIED.`);
+        return { securityOutcome: 'denied' };
+    }
+}
+
 // Node: Router (Intent Classification)
 export async function routerNode(state: AgentState) {
     const lastMessage = state.messages[state.messages.length - 1];
     const content = lastMessage.content.toString().toLowerCase();
 
     console.log('Router Node: Deciding next step for:', content);
+
+    if (content.includes('transfer') || content.includes('transferência')) {
+        return 'security';
+    }
 
     if (content.includes('clima') || content.includes('weather')) {
         return 'action';
@@ -69,12 +85,16 @@ export async function agentNode(state: AgentState): Promise<Partial<AgentState>>
 
     let response = `Hello ${name}. I am the Cognitive Agent. I received your message: "${lastUserMsg}".`;
 
-    if (state.userProfile?.lastConversationContext) {
+    if (state.securityOutcome === 'denied') {
+        response = `Access Denied. For your security, you must authenticate to perform this action.`;
+    } else if (state.userProfile?.lastConversationContext) {
         console.log(`Audit: Integrating long-term memory into response: "${state.userProfile.lastConversationContext}"`);
         response += `\n\nContinuing our discussion about: ${state.userProfile.lastConversationContext}.`;
     }
 
     return {
-        messages: [new AIMessage(response)]
+        messages: [new AIMessage(response)],
+        // Reset security outcome after handling
+        securityOutcome: 'pending'
     };
 }
