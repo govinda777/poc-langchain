@@ -8,7 +8,7 @@ async function createTestGraph() {
     const workflow = new StateGraph<AgentState>({
         channels: {
             messages: {
-                reducer: (a, b) => a.concat(b),
+                reducer: (a: BaseMessage[], b: BaseMessage[]) => a.concat(b),
                 default: () => [],
             },
             userProfile: {
@@ -37,13 +37,16 @@ async function createTestGraph() {
     });
 
     workflow.addNode('hydration', hydrationNode);
-    workflow.setEntryPoint('hydration');
-    workflow.addEdge('hydration', END);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    workflow.setEntryPoint('hydration' as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    workflow.addEdge('hydration' as any, END);
 
     return workflow.compile();
 }
 
 describe('Feature: Identity Unification', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let app: any;
 
     beforeAll(async () => {
@@ -58,12 +61,12 @@ describe('Feature: Identity Unification', () => {
         };
 
         // When the graph runs
-        const result = await app.invoke(initialState);
+        const result = await app.invoke(initialState) as AgentState;
 
         // Then the agent state should be hydrated with the user's profile
         expect(result.userProfile).toBeDefined();
-        expect(result.userProfile.name).toBe('Alice'); // We expect "Alice" for "user-123"
-        expect(result.userProfile.preferences).toEqual({ theme: 'dark' });
+        expect(result.userProfile!.name).toBe('Alice'); // We expect "Alice" for "user-123"
+        expect(result.userProfile!.preferences).toEqual({ theme: 'dark' });
     });
 
     it('Scenario: New User (Anonymous/Unknown)', async () => {
@@ -74,10 +77,10 @@ describe('Feature: Identity Unification', () => {
         };
 
         // When the graph runs
-        const result = await app.invoke(initialState);
+        const result = await app.invoke(initialState) as AgentState;
 
         // Then a default profile is created
         expect(result.userProfile).toBeDefined();
-        expect(result.userProfile.name).toBe('Visitor');
+        expect(result.userProfile!.name).toBe('Visitor');
     });
 });

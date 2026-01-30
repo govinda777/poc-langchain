@@ -9,7 +9,7 @@ async function createTestGraph() {
     const workflow = new StateGraph<AgentState>({
         channels: {
             messages: {
-                reducer: (a, b) => a.concat(b),
+                reducer: (a: BaseMessage[], b: BaseMessage[]) => a.concat(b),
                 default: () => [],
             },
             userProfile: {
@@ -41,17 +41,22 @@ async function createTestGraph() {
     workflow.addNode('perception', perceptionNode);
     workflow.addNode('agent', agentNode);
 
-    workflow.setEntryPoint('hydration');
-    workflow.addEdge('hydration', 'perception');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    workflow.setEntryPoint('hydration' as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    workflow.addEdge('hydration' as any, 'perception' as any);
 
     // Simplified routing for test: always go to agent
-    workflow.addEdge('perception', 'agent');
-    workflow.addEdge('agent', END);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    workflow.addEdge('perception' as any, 'agent' as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    workflow.addEdge('agent' as any, END);
 
     return workflow.compile();
 }
 
 describe('Feature: Long-Term Memory (Context Persistence)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let app: any;
 
     beforeAll(async () => {
@@ -68,12 +73,12 @@ describe('Feature: Long-Term Memory (Context Persistence)', () => {
         };
 
         // When he returns to access the site (The agent hydrates his profile)
-        const result = await app.invoke(initialState);
+        const result = await app.invoke(initialState) as AgentState;
 
         // Then the agent must have access to the previous context
         expect(result.userProfile).toBeDefined();
-        expect(result.userProfile.name).toBe('João');
-        expect(result.userProfile.lastConversationContext).toBe('discussed insurance proposal');
+        expect(result.userProfile!.name).toBe('João');
+        expect(result.userProfile!.lastConversationContext).toBe('discussed insurance proposal');
 
         // And the Agent should mention the context in the response
         const lastMessage = result.messages[result.messages.length - 1];

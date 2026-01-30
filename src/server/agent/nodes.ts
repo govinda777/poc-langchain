@@ -2,6 +2,7 @@ import { AgentState } from './state';
 import { END } from '@langchain/langgraph';
 import { AIMessage } from '@langchain/core/messages';
 import { getUserProfile } from './services/userStore';
+import { convertCurrency } from './tools/currency';
 
 // Node: Hydration (Identity First)
 export async function hydrationNode(state: AgentState): Promise<Partial<AgentState>> {
@@ -47,17 +48,52 @@ export async function routerNode(state: AgentState) {
         return 'action';
     }
 
+    if (content.includes('convert') || content.includes('currency') || content.includes('cotação') || content.includes('dolar') || content.includes('real')) {
+        return 'action';
+    }
+
     // Default to responding directly (or handoff to LLM generation node)
     return 'response';
 }
 
 // Node: Action (Tools)
-export async function actionNode(_state: AgentState): Promise<Partial<AgentState>> {
+export async function actionNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Action Node: Executing tool...');
-    // Simulation of a tool execution
+    const lastMessage = state.messages[state.messages.length - 1];
+    const content = lastMessage.content.toString();
+
+    // Check for Weather (stub)
+    if (content.toLowerCase().includes('weather') || content.toLowerCase().includes('clima')) {
+         return {
+            messages: [new AIMessage("Tool execution simulated: Weather is sunny.")]
+        };
+    }
+
+    // Check for Currency
+    // Regex for: 10 USD to BRL, 10 USD para BRL
+    const currencyRegex = /(\d+(?:\.\d+)?)\s*([a-zA-Z]{3})\s*(?:to|para|em)\s*([a-zA-Z]{3})/i;
+    const match = content.match(currencyRegex);
+
+    if (match) {
+        const amount = parseFloat(match[1]);
+        const from = match[2].toUpperCase();
+        const to = match[3].toUpperCase();
+
+        try {
+            const result = convertCurrency(amount, from, to);
+             return {
+                messages: [new AIMessage(`Converted: ${amount} ${from} = ${result} ${to}`)]
+            };
+        } catch (error) {
+             return {
+                messages: [new AIMessage(`Error converting currency: ${(error as Error).message}`)]
+            };
+        }
+    }
+
     return {
         // We would append a ToolMessage here
-        messages: [new AIMessage("Tool execution simulated.")]
+        messages: [new AIMessage("Tool execution simulated. No specific tool matched.")]
     };
 }
 
