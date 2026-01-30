@@ -4,7 +4,7 @@ import { User } from "@privy-io/react-auth";
 export interface UserProfile {
     id: string;
     name: string;
-    preferences: Record<string, any>;
+    preferences: Record<string, unknown>;
     lastConversationContext?: string; // Long-term memory of the last interaction
 }
 
