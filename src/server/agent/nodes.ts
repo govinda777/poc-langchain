@@ -32,22 +32,57 @@ export async function hydrationNode(state: AgentState): Promise<Partial<AgentSta
 // Node: Perception
 export async function perceptionNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log(`Perception Node: Processing input for ${state.userProfile?.name}...`);
-    // Here we could normalize input, check safety, etc.
-    return { lastActive: Date.now() };
+
+    const lastMessage = state.messages[state.messages.length - 1];
+    const content = lastMessage.content.toString().toLowerCase();
+
+    let intent = state.intent || 'general';
+
+    if (content.includes('transfer') || content.includes('transferência')) {
+        intent = 'transfer';
+    } else if (content.includes('clima') || content.includes('weather')) {
+        intent = 'weather';
+    }
+
+    return {
+        lastActive: Date.now(),
+        intent
+    };
+}
+
+// Node: Security (New)
+export async function securityNode(state: AgentState): Promise<Partial<AgentState>> {
+    console.log('Security Node: Checking verification...');
+    const { intent, isVerified, userId } = state;
+    let securityOutcome: 'approved' | 'denied' | 'pending' = 'approved';
+
+    if (intent === 'transfer') {
+        if (!isVerified) {
+             console.log(`Audit: Security Check - User ${userId} DENIED for sensitive action '${intent}'.`);
+             securityOutcome = 'denied';
+        } else {
+             console.log(`Audit: Security Check - User ${userId} APPROVED for sensitive action '${intent}'.`);
+             securityOutcome = 'approved';
+        }
+    }
+
+    return { securityOutcome };
 }
 
 // Node: Router (Intent Classification)
 export async function routerNode(state: AgentState) {
-    const lastMessage = state.messages[state.messages.length - 1];
-    const content = lastMessage.content.toString().toLowerCase();
+    console.log('Router Node: Deciding next step...');
 
-    console.log('Router Node: Deciding next step for:', content);
+    if (state.securityOutcome === 'denied') {
+        return 'response';
+    }
 
-    if (content.includes('clima') || content.includes('weather')) {
+    const intent = state.intent;
+
+    if (intent === 'weather') {
         return 'action';
     }
 
-    // Default to responding directly (or handoff to LLM generation node)
     return 'response';
 }
 
@@ -56,7 +91,6 @@ export async function actionNode(_state: AgentState): Promise<Partial<AgentState
     console.log('Action Node: Executing tool...');
     // Simulation of a tool execution
     return {
-        // We would append a ToolMessage here
         messages: [new AIMessage("Tool execution simulated.")]
     };
 }
@@ -64,10 +98,21 @@ export async function actionNode(_state: AgentState): Promise<Partial<AgentState
 // Node: Agent (Response Generation)
 export async function agentNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Agent Node: Generating response...');
+
+    if (state.securityOutcome === 'denied') {
+        return {
+             messages: [new AIMessage("Authentication required for this action.")]
+        };
+    }
+
     const lastUserMsg = state.messages[state.messages.length - 1].content;
     const name = state.userProfile?.name || "User";
 
     let response = `Hello ${name}. I am the Cognitive Agent. I received your message: "${lastUserMsg}".`;
+
+    if (state.intent === 'transfer' && state.securityOutcome === 'approved') {
+        response = `Transfer initiated for ${name}.`;
+    }
 
     if (state.userProfile?.lastConversationContext) {
         console.log(`Audit: Integrating long-term memory into response: "${state.userProfile.lastConversationContext}"`);

@@ -17,4 +17,8 @@ export interface AgentState {
     // Contextual data
     intent?: string;
     lastActive?: number;
+
+    // Security & Auth
+    isVerified?: boolean; // Short-term auth state (session based)
+    securityOutcome?: 'pending' | 'approved' | 'denied';
 }
