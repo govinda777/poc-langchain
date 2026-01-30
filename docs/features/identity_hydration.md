@@ -20,3 +20,7 @@ Implementação do princípio "Identity-First", onde a identidade do usuário é
 O nó de hidratação loga:
 - Se o usuário foi encontrado ou se um perfil transiente foi criado.
 - Qual perfil foi carregado para a sessão.
+
+## Security & Verification (US02)
+- **`isVerified`**: The identity resolution only identifies *who* the user claims to be. The `securityNode` (via `isVerified` state) determines if the user has *proven* their identity for sensitive actions.
+- Hydration -> Perception -> Security Gate.
