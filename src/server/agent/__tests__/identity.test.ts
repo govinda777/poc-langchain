@@ -1,7 +1,6 @@
-import { StateGraph, END } from '@langchain/langgraph';
-import { AgentState, UserProfile } from '../state';
+import { StateGraph, END, CompiledStateGraph } from '@langchain/langgraph';
+import { AgentState } from '../state';
 import { hydrationNode } from '../nodes';
-import { BaseMessage } from "@langchain/core/messages";
 
 // Mock implementation of a simple graph just for testing the node
 async function createTestGraph() {
@@ -44,7 +43,8 @@ async function createTestGraph() {
 }
 
 describe('Feature: Identity Unification', () => {
-    let app: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let app: CompiledStateGraph<AgentState, any, any>;
 
     beforeAll(async () => {
         app = await createTestGraph();
