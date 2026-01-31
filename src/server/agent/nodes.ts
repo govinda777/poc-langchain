@@ -32,18 +32,52 @@ export async function hydrationNode(state: AgentState): Promise<Partial<AgentSta
 // Node: Perception
 export async function perceptionNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log(`Perception Node: Processing input for ${state.userProfile?.name}...`);
-    // Here we could normalize input, check safety, etc.
-    return { lastActive: Date.now() };
+    const lastMessage = state.messages[state.messages.length - 1];
+    const content = lastMessage.content.toString().toLowerCase();
+
+    let intent = 'general';
+    if (content.includes('transfer') || content.includes('transferencia') || content.includes('pagar') || content.includes('buy')) {
+        intent = 'transfer';
+    } else if (content.includes('clima') || content.includes('weather')) {
+        intent = 'weather';
+    }
+
+    return {
+        lastActive: Date.now(),
+        intent
+    };
+}
+
+// Node: Security (US02 Gate)
+export async function securityNode(state: AgentState): Promise<Partial<AgentState>> {
+    const { intent, isVerified, userProfile } = state;
+    console.log(`Security Node: Checking access for intent '${intent}'...`);
+
+    const sensitiveIntents = ['transfer', 'buy', 'update_profile'];
+
+    if (sensitiveIntents.includes(intent || '')) {
+        if (!isVerified) {
+            console.log(`Audit: Security Check - User ${userProfile?.id} DENIED for intent ${intent}. Reason: Unverified.`);
+            return { securityOutcome: 'denied' };
+        }
+        console.log(`Audit: Security Check - User ${userProfile?.id} APPROVED for intent ${intent}.`);
+        return { securityOutcome: 'approved' };
+    }
+
+    return { securityOutcome: 'approved' }; // Default approve for non-sensitive
 }
 
 // Node: Router (Intent Classification)
 export async function routerNode(state: AgentState) {
-    const lastMessage = state.messages[state.messages.length - 1];
-    const content = lastMessage.content.toString().toLowerCase();
+    // If security denied, route to agent to explain
+    if (state.securityOutcome === 'denied') {
+        return 'response';
+    }
 
-    console.log('Router Node: Deciding next step for:', content);
+    const intent = state.intent;
+    console.log('Router Node: Deciding next step for intent:', intent);
 
-    if (content.includes('clima') || content.includes('weather')) {
+    if (intent === 'weather') {
         return 'action';
     }
 
@@ -64,6 +98,14 @@ export async function actionNode(_state: AgentState): Promise<Partial<AgentState
 // Node: Agent (Response Generation)
 export async function agentNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Agent Node: Generating response...');
+
+    // US02: Handle denied access
+    if (state.securityOutcome === 'denied') {
+         return {
+            messages: [new AIMessage("Para realizar essa ação, por favor autentique-se: [Link de Autenticação]")]
+        };
+    }
+
     const lastUserMsg = state.messages[state.messages.length - 1].content;
     const name = state.userProfile?.name || "User";
 
