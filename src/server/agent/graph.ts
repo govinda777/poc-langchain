@@ -1,6 +1,6 @@
 import { StateGraph, END } from '@langchain/langgraph';
 import { AgentState } from './state';
-import { hydrationNode, perceptionNode, routerNode, actionNode, agentNode } from './nodes';
+import { hydrationNode, perceptionNode, routerNode, actionNode, agentNode, securityNode } from './nodes';
 
 // Define the graph
 const workflow = new StateGraph<AgentState>({
@@ -31,12 +31,20 @@ const workflow = new StateGraph<AgentState>({
         lastActive: {
             reducer: (a, b) => b ?? a,
         },
+        isVerified: {
+            reducer: (a, b) => b ?? a,
+            default: () => false,
+        },
+        securityOutcome: {
+             reducer: (a, b) => b ?? a,
+        },
     },
 });
 
 // Add nodes
 workflow.addNode('hydration', hydrationNode);
 workflow.addNode('perception', perceptionNode);
+workflow.addNode('security', securityNode);
 workflow.addNode('action', actionNode);
 workflow.addNode('agent', agentNode);
 
@@ -47,9 +55,12 @@ workflow.setEntryPoint('hydration');
 // Step 2: Perceive Input
 workflow.addEdge('hydration', 'perception');
 
-// Step 3: Route
+// Step 3: Security Check (US02)
+workflow.addEdge('perception', 'security');
+
+// Step 4: Route
 workflow.addConditionalEdges(
-    'perception',
+    'security',
     routerNode,
     {
         action: 'action',
