@@ -42,23 +42,28 @@ workflow.addNode('agent', agentNode);
 
 // Add edges
 // Step 1: Hydrate Identity
-workflow.setEntryPoint('hydration');
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+workflow.setEntryPoint('hydration' as any);
 
 // Step 2: Perceive Input
-workflow.addEdge('hydration', 'perception');
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+workflow.addEdge('hydration' as any, 'perception' as any);
 
 // Step 3: Route
 workflow.addConditionalEdges(
-    'perception',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    'perception' as any,
     routerNode,
     {
         action: 'action',
         response: 'agent',
-    }
+    } as any // eslint-disable-line @typescript-eslint/no-explicit-any
 );
 
-workflow.addEdge('action', 'agent'); // After action, go back to agent to generate response
-workflow.addEdge('agent', END);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+workflow.addEdge('action' as any, 'agent' as any);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+workflow.addEdge('agent' as any, END);
 
 // Compile
 export const graph = workflow.compile();
