@@ -1,7 +1,7 @@
 import { StateGraph, END } from '@langchain/langgraph';
 import { AgentState } from '../state';
-import { hydrationNode, perceptionNode, routerNode, agentNode } from '../nodes';
-import { BaseMessage, HumanMessage } from '@langchain/core/messages';
+import { hydrationNode, perceptionNode, agentNode } from '../nodes';
+import { HumanMessage } from '@langchain/core/messages';
 
 // Recreate the minimal graph needed for US01 (Hydration -> Perception -> Agent)
 // We skip Action node for this specific test to keep it focused on Memory/Identity
@@ -52,6 +52,7 @@ async function createTestGraph() {
 }
 
 describe('Feature: Long-Term Memory (Context Persistence)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let app: any;
 
     beforeAll(async () => {

@@ -26,3 +26,10 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
     await new Promise(resolve => setTimeout(resolve, 10));
     return MOCK_DB[userId] || null;
 }
+
+export async function saveUserProfile(profile: UserProfile): Promise<void> {
+    // Simulate async DB save
+    await new Promise(resolve => setTimeout(resolve, 10));
+    MOCK_DB[profile.id] = profile;
+    console.log(`Audit: User profile saved for ${profile.id}`);
+}

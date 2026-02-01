@@ -1,7 +1,7 @@
 import { AgentState } from './state';
-import { END } from '@langchain/langgraph';
 import { AIMessage } from '@langchain/core/messages';
 import { getUserProfile } from './services/userStore';
+import { addTask, listTasks } from './tools/taskManager';
 
 // Node: Hydration (Identity First)
 export async function hydrationNode(state: AgentState): Promise<Partial<AgentState>> {
@@ -43,7 +43,7 @@ export async function routerNode(state: AgentState) {
 
     console.log('Router Node: Deciding next step for:', content);
 
-    if (content.includes('clima') || content.includes('weather')) {
+    if (content.includes('clima') || content.includes('weather') || content.includes('task') || content.includes('tarefa') || content.includes('lembrete')) {
         return 'action';
     }
 
@@ -52,12 +52,31 @@ export async function routerNode(state: AgentState) {
 }
 
 // Node: Action (Tools)
-export async function actionNode(_state: AgentState): Promise<Partial<AgentState>> {
+export async function actionNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Action Node: Executing tool...');
-    // Simulation of a tool execution
+    const lastMessage = state.messages[state.messages.length - 1];
+    const content = lastMessage.content.toString().toLowerCase();
+
+    let result = "Tool execution simulated.";
+
+    if (content.includes('clima') || content.includes('weather')) {
+        result = "Weather tool execution simulated.";
+    } else if (content.includes('task') || content.includes('tarefa') || content.includes('lembrete')) {
+        if (state.userProfile) {
+             if (content.includes('add') || content.includes('adicionar') || content.includes('nova') || content.includes('new')) {
+                // Simple extraction: assume everything after "task"/"tarefa" is the description
+                const description = content.replace(/(add|adicionar|nova|new|task|tarefa|lembrete)/g, '').trim();
+                result = await addTask(state.userProfile, description || "New Task");
+             } else {
+                result = await listTasks(state.userProfile);
+             }
+        } else {
+            result = "User profile not found. Cannot manage tasks.";
+        }
+    }
+
     return {
-        // We would append a ToolMessage here
-        messages: [new AIMessage("Tool execution simulated.")]
+        messages: [new AIMessage(result)]
     };
 }
 
