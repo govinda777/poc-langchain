@@ -32,12 +32,54 @@ export async function hydrationNode(state: AgentState): Promise<Partial<AgentSta
 // Node: Perception
 export async function perceptionNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log(`Perception Node: Processing input for ${state.userProfile?.name}...`);
-    // Here we could normalize input, check safety, etc.
-    return { lastActive: Date.now() };
+    const lastMessage = state.messages[state.messages.length - 1];
+    const content = lastMessage.content.toString().toLowerCase();
+
+    let intent = 'general';
+    const sensitiveKeywords = ['transferencia', 'transfer', 'pagar', 'pay', 'buy', 'comprar'];
+    const weatherKeywords = ['clima', 'weather'];
+
+    if (sensitiveKeywords.some(kw => content.includes(kw))) {
+        intent = 'transfer';
+    } else if (weatherKeywords.some(kw => content.includes(kw))) {
+        intent = 'weather';
+    }
+
+    return {
+        lastActive: Date.now(),
+        intent
+    };
+}
+
+// Node: Security
+export async function securityNode(state: AgentState): Promise<Partial<AgentState>> {
+    console.log(`Security Node: Checking security for intent "${state.intent}"...`);
+
+    // Sensitive intents require verification
+    const sensitiveIntents = ['transfer'];
+
+    if (sensitiveIntents.includes(state.intent || '')) {
+        if (!state.isVerified) {
+            console.log('Audit: Security Check - User NOT verified for sensitive action. Outcome: Denied.');
+            return { securityOutcome: 'denied' };
+        } else {
+             console.log('Audit: Security Check - User verified for sensitive action. Outcome: Approved.');
+             return { securityOutcome: 'approved' };
+        }
+    }
+
+    console.log('Audit: Security Check - Action not sensitive. Outcome: Approved.');
+    return { securityOutcome: 'approved' };
 }
 
 // Node: Router (Intent Classification)
 export async function routerNode(state: AgentState) {
+    // Security check shortcut
+    if (state.securityOutcome === 'denied') {
+        console.log('Router Node: Security denied. Routing to response.');
+        return 'response';
+    }
+
     const lastMessage = state.messages[state.messages.length - 1];
     const content = lastMessage.content.toString().toLowerCase();
 
@@ -64,6 +106,13 @@ export async function actionNode(_state: AgentState): Promise<Partial<AgentState
 // Node: Agent (Response Generation)
 export async function agentNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log('Agent Node: Generating response...');
+
+    if (state.securityOutcome === 'denied') {
+        return {
+            messages: [new AIMessage("Authentication required for this action. Please verify your identity.")]
+        };
+    }
+
     const lastUserMsg = state.messages[state.messages.length - 1].content;
     const name = state.userProfile?.name || "User";
 
