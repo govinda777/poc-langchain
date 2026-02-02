@@ -6,7 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "jest",
+    "prepare": "husky",
+    "check-secrets": "secretlint \"**/*\""
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "secretlint"
+    ]
   },
   "dependencies": {
     "@langchain/core": "^1.1.12",
@@ -23,6 +32,9 @@
     "zod": "^4.3.5"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.4.0",
+    "@commitlint/config-conventional": "^20.4.0",
+    "@secretlint/quick-start": "^11.3.1",
     "@tailwindcss/postcss": "^4",
     "@types/inquirer": "^9.0.9",
     "@types/jest": "^30.0.0",
@@ -31,7 +43,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "husky": "^9.1.7",
     "jest": "^30.2.0",
+    "lint-staged": "^16.2.7",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",

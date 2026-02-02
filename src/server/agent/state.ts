@@ -1,10 +1,18 @@
 import { BaseMessage } from "@langchain/core/messages";
 import { User } from "@privy-io/react-auth";
 
+export interface Task {
+    id: string;
+    description: string;
+    status: 'pending' | 'completed';
+    createdAt: number;
+}
+
 export interface UserProfile {
     id: string;
     name: string;
     preferences: Record<string, any>;
+    tasks: Task[]; // Long-term memory of tasks
     lastConversationContext?: string; // Long-term memory of the last interaction
 }
 

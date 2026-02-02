@@ -6,17 +6,20 @@ const MOCK_DB: Record<string, UserProfile> = {
     'user-123': {
         id: 'user-123',
         name: 'Alice',
-        preferences: { theme: 'dark' }
+        preferences: { theme: 'dark' },
+        tasks: []
     },
     'user-456': {
         id: 'user-456',
         name: 'Bob',
-        preferences: { language: 'pt-BR' }
+        preferences: { language: 'pt-BR' },
+        tasks: []
     },
     'joao-123': {
         id: 'joao-123',
         name: 'João',
         preferences: {},
+        tasks: [],
         lastConversationContext: "discussed insurance proposal"
     }
 };
@@ -25,4 +28,9 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
     // Simulate async DB call
     await new Promise(resolve => setTimeout(resolve, 10));
     return MOCK_DB[userId] || null;
+}
+
+export async function updateUserProfile(profile: UserProfile): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 10));
+    MOCK_DB[profile.id] = profile;
 }
