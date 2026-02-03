@@ -2,6 +2,7 @@ import { AgentState } from './state';
 import { END } from '@langchain/langgraph';
 import { AIMessage } from '@langchain/core/messages';
 import { getUserProfile } from './services/userStore';
+import { createSupportTicket } from './tools/techSupport';
 
 // Node: Hydration (Identity First)
 export async function hydrationNode(state: AgentState): Promise<Partial<AgentState>> {
@@ -40,6 +41,8 @@ export async function perceptionNode(state: AgentState): Promise<Partial<AgentSt
         intent = 'weather';
     } else if (content.includes('transfer') || content.includes('pagar') || content.includes('pay')) {
         intent = 'transfer';
+    } else if (content.includes('bug') || content.includes('erro') || content.includes('ajuda') || content.includes('suporte') || content.includes('help')) {
+        intent = 'tech_support';
     }
 
     return {
@@ -75,6 +78,9 @@ export async function routerNode(state: AgentState) {
     if (intent === 'weather') {
         return 'action';
     }
+    if (intent === 'tech_support') {
+        return 'action';
+    }
     if (intent === 'transfer') {
         return 'security';
     }
@@ -91,6 +97,10 @@ export async function actionNode(state: AgentState): Promise<Partial<AgentState>
 
     if (intent === 'transfer') {
         result = "Audit: Transfer executed successfully.";
+    } else if (intent === 'tech_support') {
+        const lastMsg = state.messages[state.messages.length - 1].content.toString();
+        const ticket = createSupportTicket(lastMsg);
+        result = `Ticket created: ${ticket.id}. We have received your report: "${ticket.description}".`;
     }
 
     return {
