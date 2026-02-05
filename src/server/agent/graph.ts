@@ -50,34 +50,34 @@ workflow.addNode('security', securityNode);
 
 // Add edges
 // Step 1: Hydrate Identity
-workflow.setEntryPoint('hydration');
+workflow.setEntryPoint('hydration' as any);
 
 // Step 2: Perceive Input
-workflow.addEdge('hydration', 'perception');
+workflow.addEdge('hydration' as any, 'perception' as any);
 
 // Step 3: Route
 workflow.addConditionalEdges(
-    'perception',
+    'perception' as any,
     routerNode,
     {
         action: 'action',
         response: 'agent',
         security: 'security',
-    }
+    } as any
 );
 
 // Step 4: Security Gate
 workflow.addConditionalEdges(
-    'security',
+    'security' as any,
     (state) => state.securityOutcome || 'denied',
     {
         approved: 'action',
         denied: 'agent',
-    }
+    } as any
 );
 
-workflow.addEdge('action', 'agent'); // After action, go back to agent to generate response
-workflow.addEdge('agent', END);
+workflow.addEdge('action' as any, 'agent' as any); // After action, go back to agent to generate response
+workflow.addEdge('agent' as any, END);
 
 // Compile
 export const graph = workflow.compile();
