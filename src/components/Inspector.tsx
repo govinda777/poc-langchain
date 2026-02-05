@@ -45,6 +45,20 @@ export const Inspector: React.FC<InspectorProps> = ({ state }) => {
       </div>
 
       <div className="flex-1 overflow-auto p-4 custom-scrollbar">
+        {state.auditLogs && state.auditLogs.length > 0 && (
+            <div className="mb-4">
+                <h3 className="text-zinc-500 mb-2 font-semibold">Audit Logs / Execution Trace</h3>
+                <div className="bg-zinc-900/50 p-2 rounded border border-zinc-800/50 space-y-1">
+                    {state.auditLogs.map((log, i) => (
+                        <div key={i} className="text-[10px] font-mono border-b border-zinc-800/30 last:border-0 pb-1 last:pb-0">
+                            <span className="text-zinc-500 mr-2">[{i + 1}]</span>
+                            <span className="text-zinc-300">{log}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )}
+
         <div className="mb-4">
             <h3 className="text-zinc-500 mb-2 font-semibold">Message History ({state.messages?.length || 0})</h3>
             <div className="space-y-2">

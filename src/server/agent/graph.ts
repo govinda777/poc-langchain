@@ -37,6 +37,10 @@ const workflow = new StateGraph<AgentState>({
         },
         securityOutcome: {
             reducer: (a, b) => b ?? a,
+        },
+        auditLogs: {
+            reducer: (a, b) => (a || []).concat(b || []),
+            default: () => [],
         }
     },
 });

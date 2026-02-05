@@ -20,4 +20,6 @@ export interface AgentState {
     // Security
     isVerified?: boolean;
     securityOutcome?: 'approved' | 'denied' | 'pending';
+    // Observability
+    auditLogs?: string[];
 }
