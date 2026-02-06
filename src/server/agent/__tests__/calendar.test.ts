@@ -1,6 +1,21 @@
-import { graph } from '../graph';
+import { jest } from '@jest/globals';
 import { HumanMessage } from '@langchain/core/messages';
 import { AgentState } from '../state';
+
+jest.mock('../../../lib/env', () => ({
+  env: {
+    OPENAI_API_KEY: 'sk-dummy',
+    NODE_ENV: 'test'
+  }
+}));
+
+jest.mock('@langchain/openai', () => ({
+    ChatOpenAI: jest.fn().mockImplementation(() => ({
+        invoke: jest.fn().mockResolvedValue({ content: 'Mocked Response' })
+    }))
+}));
+
+import { graph } from '../graph';
 
 // Increase timeout for integration tests
 jest.setTimeout(10000);

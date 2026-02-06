@@ -1,7 +1,22 @@
+import { jest } from '@jest/globals';
 import { StateGraph, END } from '@langchain/langgraph';
 import { AgentState, UserProfile } from '../state';
-import { hydrationNode } from '../nodes';
 import { BaseMessage } from "@langchain/core/messages";
+
+jest.mock('../../../lib/env', () => ({
+  env: {
+    OPENAI_API_KEY: 'sk-dummy',
+    NODE_ENV: 'test'
+  }
+}));
+
+jest.mock('@langchain/openai', () => ({
+    ChatOpenAI: jest.fn().mockImplementation(() => ({
+        invoke: jest.fn().mockResolvedValue({ content: 'Mocked Response' })
+    }))
+}));
+
+import { hydrationNode } from '../nodes';
 
 // Mock implementation of a simple graph just for testing the node
 async function createTestGraph() {

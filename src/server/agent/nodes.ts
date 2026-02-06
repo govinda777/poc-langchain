@@ -1,6 +1,8 @@
 import { AgentState } from './state';
 import { END } from '@langchain/langgraph';
-import { AIMessage } from '@langchain/core/messages';
+import { AIMessage, SystemMessage } from '@langchain/core/messages';
+import { ChatOpenAI } from '@langchain/openai';
+import { env } from '../../lib/env';
 import { getUserProfile } from './services/userStore';
 import { googleCalendarTool } from './tools/googleCalendar';
 
@@ -148,19 +150,32 @@ export async function agentNode(state: AgentState): Promise<Partial<AgentState>>
         };
     }
 
-    const lastUserMsg = state.messages[state.messages.length - 1].content;
     const name = state.userProfile?.name || "User";
 
-    let response = `Hello ${name}. I am the Cognitive Agent. I received your message: "${lastUserMsg}".`;
+    const model = new ChatOpenAI({
+        apiKey: env.OPENAI_API_KEY,
+        modelName: 'gpt-4o-mini',
+        temperature: 0
+    });
+
+    const systemMessage = new SystemMessage(
+        `You are a helpful assistant named Cognitive Agent. You are talking to ${name}.`
+    );
+
+    const inputMessages = [systemMessage, ...state.messages];
+
+    logs.push('Agent Node: Calling OpenAI...');
+    const result = await model.invoke(inputMessages);
+    let responseContent = result.content.toString();
 
     if (state.userProfile?.lastConversationContext) {
         console.log(`Audit: Integrating long-term memory into response: "${state.userProfile.lastConversationContext}"`);
         logs.push(`Audit: Integrating long-term memory into response: "${state.userProfile.lastConversationContext}"`);
-        response += `\n\nContinuing our discussion about: ${state.userProfile.lastConversationContext}.`;
+        responseContent += `\n\nContinuing our discussion about: ${state.userProfile.lastConversationContext}.`;
     }
 
     return {
-        messages: [new AIMessage(response)],
+        messages: [new AIMessage(responseContent)],
         auditLogs: logs
     };
 }
