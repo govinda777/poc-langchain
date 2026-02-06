@@ -1,7 +1,28 @@
+import { jest } from '@jest/globals';
 import { StateGraph, END } from '@langchain/langgraph';
 import { AgentState } from '../state';
-import { hydrationNode, perceptionNode, routerNode, agentNode } from '../nodes';
 import { BaseMessage, HumanMessage } from '@langchain/core/messages';
+
+// Mock env
+jest.mock('../../../lib/env', () => ({
+  env: {
+    OPENAI_API_KEY: 'sk-dummy',
+    NODE_ENV: 'test'
+  }
+}));
+
+// Mock OpenAI
+jest.mock('@langchain/openai', () => {
+  return {
+    ChatOpenAI: jest.fn().mockImplementation(() => {
+      return {
+        invoke: jest.fn().mockResolvedValue({ content: 'Mock response' })
+      };
+    })
+  };
+});
+
+import { hydrationNode, perceptionNode, routerNode, agentNode } from '../nodes';
 
 // Recreate the minimal graph needed for US01 (Hydration -> Perception -> Agent)
 // We skip Action node for this specific test to keep it focused on Memory/Identity
