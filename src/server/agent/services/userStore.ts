@@ -23,6 +23,5 @@ const MOCK_DB: Record<string, UserProfile> = {
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
     // Simulate async DB call
-    await new Promise(resolve => setTimeout(resolve, 10));
     return MOCK_DB[userId] || null;
 }
