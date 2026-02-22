@@ -50,7 +50,7 @@ export const Inspector: React.FC<InspectorProps> = ({ state }) => {
                 <h3 className="text-zinc-500 mb-2 font-semibold">Audit Logs / Execution Trace</h3>
                 <div className="bg-zinc-900/50 p-2 rounded border border-zinc-800/50 space-y-1">
                     {state.auditLogs.map((log, i) => (
-                        <div key={i} className="text-[10px] font-mono border-b border-zinc-800/30 last:border-0 pb-1 last:pb-0">
+                        <div key={`audit-${i}-${log.substring(0, 32)}`} className="text-[10px] font-mono border-b border-zinc-800/30 last:border-0 pb-1 last:pb-0">
                             <span className="text-zinc-500 mr-2">[{i + 1}]</span>
                             <span className="text-zinc-300">{log}</span>
                         </div>
@@ -63,7 +63,7 @@ export const Inspector: React.FC<InspectorProps> = ({ state }) => {
             <h3 className="text-zinc-500 mb-2 font-semibold">Message History ({state.messages?.length || 0})</h3>
             <div className="space-y-2">
                 {state.messages?.map((m: any, i: number) => (
-                    <div key={i} className="bg-zinc-900/50 p-2 rounded border border-zinc-800/50">
+                    <div key={m.id || i} className="bg-zinc-900/50 p-2 rounded border border-zinc-800/50">
                         <div className="text-zinc-500 text-[10px] uppercase mb-1 flex justify-between">
                             <span>{m.id || m.name || m.constructor?.name || 'Message'}</span>
                             <span>{m._getType ? m._getType() : 'unknown'}</span>
@@ -75,7 +75,7 @@ export const Inspector: React.FC<InspectorProps> = ({ state }) => {
                             <div className="mt-2 pl-2 border-l-2 border-amber-500/30">
                                 <span className="text-amber-500 block mb-1">Tool Calls:</span>
                                 {m.tool_calls.map((tc: any, idx: number) => (
-                                    <div key={idx} className="text-amber-300/80">
+                                    <div key={`tc-${idx}-${tc.name}`} className="text-amber-300/80">
                                         {tc.name}({JSON.stringify(tc.args)})
                                     </div>
                                 ))}

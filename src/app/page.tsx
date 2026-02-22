@@ -4,8 +4,14 @@ import { useState } from 'react';
 import { Inspector } from '@/components/Inspector';
 import type { AgentState } from '@/server/agent/state';
 
+interface Message {
+  id: string;
+  role: string;
+  content: string;
+}
+
 export default function Home() {
-  const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [latestAgentState, setLatestAgentState] = useState<AgentState | null>(null);
@@ -13,7 +19,7 @@ export default function Home() {
   const sendMessage = async () => {
     if (!input.trim()) return;
 
-    const userMessage = { role: 'user', content: input };
+    const userMessage: Message = { id: crypto.randomUUID(), role: 'user', content: input };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setLoading(true);
@@ -35,11 +41,11 @@ export default function Home() {
         setLatestAgentState(data.agentState);
       }
 
-      const agentMessage = { role: 'assistant', content: data.response || 'No response' };
+      const agentMessage: Message = { id: crypto.randomUUID(), role: 'assistant', content: data.response || 'No response' };
       setMessages((prev) => [...prev, agentMessage]);
     } catch (error) {
       console.error(error);
-      setMessages((prev) => [...prev, { role: 'system', content: '⚠ Error communicating with agent.' }]);
+      setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'system', content: '⚠ Error communicating with agent.' }]);
     } finally {
       setLoading(false);
     }
@@ -80,9 +86,9 @@ export default function Home() {
               </div>
             )}
             <div className="flex flex-col gap-4">
-              {messages.map((msg, idx) => (
+              {messages.map((msg) => (
                 <div
-                  key={idx}
+                  key={msg.id}
                   className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
