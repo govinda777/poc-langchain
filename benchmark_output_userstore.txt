@@ -1,3 +1,0 @@
-Running benchmark: 50 iterations of getUserProfile('user-123')
-Total time: 5.00ms
-Average time per call: 0.10ms
