@@ -1,0 +1,3 @@
+error: Cannot find module '@langchain/core/messages' from '/app/src/server/agent/nodes.ts'
+
+Bun v1.2.14 (Linux x64 baseline)
