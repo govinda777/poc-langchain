@@ -2,13 +2,15 @@ import { getUserProfile } from '../src/server/agent/services/userStore';
 
 async function runBenchmark() {
     const userId = 'user-123';
-    const iterations = 50;
+    const iterations = 100;
     console.log(`Running benchmark: ${iterations} iterations of getUserProfile('${userId}')`);
 
     const start = Date.now();
+    const promises = [];
     for (let i = 0; i < iterations; i++) {
-        await getUserProfile(userId);
+        promises.push(getUserProfile(userId));
     }
+    await Promise.all(promises);
     const end = Date.now();
 
     const totalTime = end - start;
