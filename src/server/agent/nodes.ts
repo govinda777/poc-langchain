@@ -37,6 +37,11 @@ export async function hydrationNode(state: AgentState): Promise<Partial<AgentSta
     };
 }
 
+// Precompiled regex for intent matching
+const WEATHER_REGEX = /clima|weather/;
+const TRANSFER_REGEX = /transfer|pagar|pay/;
+const CALENDAR_REGEX = /calendar|agenda|reuniao|meeting|evento|schedule/;
+
 // Node: Perception
 export async function perceptionNode(state: AgentState): Promise<Partial<AgentState>> {
     console.log(`Perception Node: Processing input for ${state.userProfile?.name}...`);
@@ -47,11 +52,11 @@ export async function perceptionNode(state: AgentState): Promise<Partial<AgentSt
     const content = lastMessage.content.toString().toLowerCase();
 
     let intent = 'conversation';
-    if (content.includes('clima') || content.includes('weather')) {
+    if (WEATHER_REGEX.test(content)) {
         intent = 'weather';
-    } else if (content.includes('transfer') || content.includes('pagar') || content.includes('pay')) {
+    } else if (TRANSFER_REGEX.test(content)) {
         intent = 'transfer';
-    } else if (['calendar', 'agenda', 'reuniao', 'meeting', 'evento', 'schedule'].some(k => content.includes(k))) {
+    } else if (CALENDAR_REGEX.test(content)) {
         intent = 'calendar';
     }
 
