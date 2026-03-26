@@ -17,12 +17,12 @@ const clientSchema = z.object({
 const _env = serverSchema.merge(clientSchema);
 
 const formatErrors = (errors: z.ZodFormattedError<z.infer<typeof _env>>) =>
-  Object.entries(errors)
-    .map(([name, value]) => {
-      if (value && "_errors" in value)
-        return `${name}: ${value._errors.join(", ")}`;
-    })
-    .filter(Boolean);
+  Object.entries(errors).reduce((acc, [name, value]) => {
+    if (value && "_errors" in value) {
+      acc.push(`${name}: ${value._errors.join(", ")}`);
+    }
+    return acc;
+  }, [] as string[]);
 
 export const env = (() => {
   const isServer = typeof window === 'undefined';
