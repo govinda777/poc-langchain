@@ -21,7 +21,15 @@ const MOCK_DB: Record<string, UserProfile> = {
     }
 };
 
+const profileCache = new Map<string, UserProfile | null>();
+
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
+    if (profileCache.has(userId)) {
+        return profileCache.get(userId) || null;
+    }
+
     // Simulate async DB call
-    return MOCK_DB[userId] || null;
+    const profile = MOCK_DB[userId] || null;
+    profileCache.set(userId, profile);
+    return profile;
 }
