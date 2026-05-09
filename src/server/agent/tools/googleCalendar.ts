@@ -8,9 +8,6 @@
 export async function googleCalendarTool(query: string): Promise<string> {
     const lowerQuery = query.toLowerCase();
 
-    // Simulate API latency
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     if (lowerQuery.includes('list') || lowerQuery.includes('agenda') || lowerQuery.includes('listar')) {
       return JSON.stringify([
         { id: 'evt_1', summary: 'Daily Standup', start: new Date().toISOString() },
