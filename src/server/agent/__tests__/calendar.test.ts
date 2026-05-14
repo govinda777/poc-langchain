@@ -15,7 +15,7 @@ describe('Feature: Google Calendar Integration (US-Calendar)', () => {
         };
 
         // Invoke the graph
-        const result = await graph.invoke(initialState as any) as AgentState;
+        const result = await graph.invoke(initialState as any) as unknown as AgentState;
 
         // Verify Intent
         expect(result.intent).toBe('calendar');
@@ -39,7 +39,7 @@ describe('Feature: Google Calendar Integration (US-Calendar)', () => {
             messages: [new HumanMessage("List my agenda events")],
         };
 
-        const result = await graph.invoke(initialState as any) as AgentState;
+        const result = await graph.invoke(initialState as any) as unknown as AgentState;
 
         expect(result.intent).toBe('calendar');
 
