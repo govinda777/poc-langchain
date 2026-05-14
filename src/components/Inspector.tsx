@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import type { AgentState } from '@/server/agent/state';
 
 interface InspectorProps {
@@ -8,6 +8,13 @@ interface InspectorProps {
 }
 
 export const Inspector: React.FC<InspectorProps> = ({ state }) => {
+  const [showRaw, setShowRaw] = useState(false);
+
+  const serializedState = useMemo(() => {
+    if (!state || !showRaw) return '';
+    return JSON.stringify(state, null, 2);
+  }, [state, showRaw]);
+
   if (!state) {
     return (
       <div className="h-full flex items-center justify-center text-zinc-500 font-mono text-sm border-l border-zinc-800 bg-zinc-900/50 p-4">
@@ -86,11 +93,21 @@ export const Inspector: React.FC<InspectorProps> = ({ state }) => {
             </div>
         </div>
 
-        <div>
-            <h3 className="text-zinc-500 mb-2 font-semibold">Raw State</h3>
-            <pre className="text-[10px] text-zinc-400 bg-zinc-900 p-2 rounded overflow-x-auto border border-zinc-800">
-                {JSON.stringify(state, null, 2)}
-            </pre>
+        <div className="mt-6 border-t border-zinc-800 pt-4">
+            <div className="flex items-center justify-between mb-2">
+                <h3 className="text-zinc-500 font-semibold">Raw State</h3>
+                <button
+                    onClick={() => setShowRaw(!showRaw)}
+                    className="text-[10px] px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400 transition-colors border border-zinc-700"
+                >
+                    {showRaw ? 'Hide' : 'Show'}
+                </button>
+            </div>
+            {showRaw && (
+                <pre className="text-[10px] text-zinc-400 bg-zinc-900 p-2 rounded overflow-x-auto border border-zinc-800 animate-in fade-in slide-in-from-top-1 duration-200">
+                    {serializedState}
+                </pre>
+            )}
         </div>
       </div>
     </div>
