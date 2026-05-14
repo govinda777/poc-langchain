@@ -15,7 +15,7 @@ describe('Feature: Security Gate (US02)', () => {
         };
 
         // Cast to unknown first to avoid type issues with StateGraph compilation
-        const result = await graph.invoke(initialState as any) as AgentState;
+        const result = await graph.invoke(initialState as any) as unknown as AgentState;
 
         // Assertions
         expect(result.intent).toBe('transfer');
@@ -33,7 +33,7 @@ describe('Feature: Security Gate (US02)', () => {
             isVerified: true
         };
 
-        const result = await graph.invoke(initialState as any) as AgentState;
+        const result = await graph.invoke(initialState as any) as unknown as AgentState;
 
         // Assertions
         expect(result.intent).toBe('transfer');
